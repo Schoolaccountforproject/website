@@ -1,7 +1,7 @@
 # Welcome, Explorer!
 
 Well well well... looks like you stumbled upon this **treasure chest**.  
-⚠️ Spoiler alert: this is a *very bad* website, and you’ll probably be **not impressed**...  
+Spoiler alert: this is a very bad website, and you’ll probably be not impressed...  
 
 ...but hey, now that I’ve got your attention maybe consider giving this project a vote?  
 You never know if the *other project* you’re looking at is secretly part of a *planned alien cyber-invasion*.
