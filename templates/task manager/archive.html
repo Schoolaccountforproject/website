@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="{{ url_for('static', filename='task_manager.css') }}">
+        <title>Task Manager</title>
+    </head>
+    <body>
+        <h1>Archived Tasks</h1>
+        {% if tasks|length == 0%}
+            <p>No Archived tasks</p>
+        {% else %}
+            <table>
+                <tr>
+                    <th>Task</th>
+                    <th>Date Created</th>
+                    <th>Date Completed</th>
+                </tr>
+                {% for task in tasks %}
+                    <tr>
+                        <td>{{ task.task }}</td>
+                        <td>{{ task.date_created.strftime('%Y-%m-%d %H:%M') }}</td>
+                        <td>
+                            {% if task.date_completed %}
+                                {{ task.date_completed.strftime('%Y-%m-%d %H:%M') }}
+                            {% else %}
+                                Not Available
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </table>
+        {% endif %}
+        <br>
+        <a href="/task-manager">Back to Task Manager</a>
+    </body>
+</html>

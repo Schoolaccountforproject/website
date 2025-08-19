@@ -1,0 +1,37 @@
+.vercel
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.env
+.env
+*.sqlite3
+*.db
+instance/
+*.log
+
+# pip
+venv/
+env/
+.venv/
+pip-log.txt
+
+# Flask/Migrations
+migrations/
+
+# Node.js/npm
+node_modules/
+npm-debug.log
+package-lock.json
+
+# IDEs
+.idea/
+.vscode/
+.DS_Store
+
+# Autres fichiers temporaires
+*.swp
+*.bak
+*.tmp
+config.py

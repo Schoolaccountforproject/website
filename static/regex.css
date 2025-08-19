@@ -1,0 +1,93 @@
+/* Basic reset */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  background-color: #f9fafb;
+  font-family: Arial, sans-serif;
+  margin: 20px;
+  color: #333;
+}
+
+/* Container styling */
+.regex-container {
+  max-width: 700px;
+  margin: 0 auto;
+  padding: 20px 30px;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+/* Headings */
+.regex-container h2 {
+  text-align: center;
+  margin-bottom: 20px;
+  color: #2c3e50;
+}
+
+/* Labels */
+label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: bold;
+  color: #555;
+}
+
+/* Inputs and textarea */
+input[type="text"], textarea {
+  width: 100%;
+  padding: 10px 12px;
+  font-size: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  margin-bottom: 20px;
+  resize: vertical;
+  transition: border-color 0.3s ease;
+}
+
+input[type="text"]:focus, textarea:focus {
+  border-color: #3498db;
+  outline: none;
+}
+
+/* Buttons */
+button {
+  background-color: #3498db;
+  border: none;
+  color: white;
+  padding: 10px 20px;
+  font-size: 1rem;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-right: 10px;
+  transition: background-color 0.3s ease;
+}
+
+button:hover {
+  background-color: #2980b9;
+}
+
+/* Output area */
+#output {
+  background-color: #272822;
+  color: #f8f8f2;
+  font-family: monospace;
+  padding: 15px;
+  border-radius: 6px;
+  min-height: 150px;
+  white-space: pre-wrap;
+  overflow-x: auto;
+  margin-top: 10px;
+  border: 1px solid #444;
+}
+
+/* Error message */
+#error-message {
+  color: #e74c3c;
+  font-weight: bold;
+  margin-top: 12px;
+  text-align: center;
+}

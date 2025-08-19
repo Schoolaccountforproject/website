@@ -1,0 +1,206 @@
+/* styles.css */
+body {
+    font-family: 'Poppins', sans-serif;
+    text-align: center;
+    background: linear-gradient(120deg, #ff9a9e, #fad0c4);
+    overflow-y: auto;
+    position: relative;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+/* Animated Title */
+h1 {
+    font-size: 48px;
+    color: #fff;
+    text-shadow: 4px 4px 10px rgba(0, 0, 0, 0.2);
+    animation: bounce 1s infinite alternate;
+}
+
+form {
+    background: rgba(255, 255, 255, 0.9);
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    max-width: 400px;
+    width: 100%;
+    text-align: center;
+    animation: fadeIn 0.5s ease-in-out;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px; /* Adds spacing between input and button */
+}
+
+label {
+    font-size: 18px;
+    font-weight: bold;
+    display: block;
+    margin: 10px 0 5px;
+    color: #333;
+}
+
+input {
+    width: 100%;
+    max-width: 350px;
+    padding: 12px;
+    border: 2px solid #ff9a9e;
+    border-radius: 8px;
+    font-size: 16px;
+    box-sizing: border-box;
+}
+
+input, button {
+    width: 100%;
+    padding: 12px;
+    margin-top: 8px;
+    border: 2px solid #ff9a9e;
+    border-radius: 8px;
+    font-size: 16px;
+    transition: 0.3s;
+}
+
+button {
+    width: 100%;
+    max-width: 350px;
+    padding: 12px;
+    font-size: 18px;
+    font-weight: bold;
+    border: none;
+    border-radius: 20px;
+    background: linear-gradient(45deg, #ff6f61, #ff9966);
+    color: white;
+    box-shadow: 0 5px 15px rgba(255, 105, 135, 0.3);
+    cursor: pointer;
+    transition: all 0.3s ease-in-out;
+
+}
+
+button:hover {
+    transform: scale(1.1);
+    background: linear-gradient(45deg, #ff9966, #ff6f61);
+    box-shadow: 0 8px 20px rgba(255, 105, 135, 0.5);
+}
+
+ul {
+    list-style: none;
+    padding: 0;
+    margin: 20px 0;
+}
+
+li {
+    background: rgba(255, 255, 255, 0.9);
+    margin: 5px 0;
+    padding: 10px;
+    border-radius: 8px;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s;
+}
+
+li:hover {
+    transform: translateY(-3px);
+}
+
+a {
+    text-decoration: none;
+    color: #ff758c;
+    font-weight: bold;
+    transition: color 0.3s;
+}
+
+a:hover {
+    color: #ff3b6f;
+    text-decoration: underline;
+}
+
+/* Paragraph Styling */
+p {
+    font-size: 18px;
+    color: #444;
+    text-align: center;
+    margin-top: 10px;
+}
+
+.center-button {
+    display: flex;                /* Use flexbox to center content */
+    justify-content: center;      /* Center horizontally */
+    align-items: center;          /* Center vertically */
+}
+
+/* Header styling */
+header img {
+    height: 60px;
+}
+
+header .navbar-brand {
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+
+/* Button hover effects */
+.btn:hover {
+    transform: scale(1.1);
+    transition: all 0.3s ease-in-out;
+}
+
+/* Footer borders */
+footer {
+    background: transparent !important; /* Ensure no background */
+    box-shadow: none !important; /* Remove shadow */
+    border: none !important; /* Remove any border */
+}
+
+
+
+/* Hyperlinks hover */
+a:hover {
+    color: #0d6efd !important;
+    text-decoration: underline !important;
+}
+
+/* Style the news section */
+#news-section {
+    margin-top: 20px;
+}
+
+.card {
+    border: 1px solid #ddd;
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.card:hover {
+    transform: scale(1.02);
+    box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15);
+}
+
+.card-img-top {
+    max-height: 200px;
+    object-fit: cover;
+}
+
+.card-title {
+    font-weight: bold;
+    color: #333;
+}
+
+.card-text {
+    font-size: 0.9rem;
+    color: #555;
+}
+
+.btn-primary {
+    background-color: #007bff;
+    border: none;
+    transition: background-color 0.3s ease;
+}
+
+.btn-primary:hover {
+    background-color: #0056b3;
+}

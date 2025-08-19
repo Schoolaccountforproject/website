@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Huayushan.fun</title>
+<style>
+    :root {
+      --sidebar-width: 260px;
+      --accent: #e74c3c;
+      --bg-grad-a: #f3f6fa;
+      --bg-grad-b: #e9eff6;
+    }
+    .top-bar {
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 0 16px;
+      background: #fff;
+      border-bottom: 1px solid rgba(0,0,0,0.06);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+      position: sticky;
+      top: 0;
+      z-index: 1200;
+    }
+
+    .top-bar .left-controls,
+    .top-bar .right-controls {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .menu-btn {
+      border: 2px solid transparent;
+      background: transparent;
+      color: var(--accent);
+      font-size: 18px;
+      padding: 8px 10px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background .18s, color .18s, transform .08s;
+    }
+    .menu-btn:hover { background: rgba(231,76,60,0.08); transform: translateY(-1px); }
+
+    .top-btn {
+      border: 2px solid var(--accent);
+      background: transparent;
+      color: var(--accent);
+      padding: 6px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    .top-btn:hover { background: var(--accent); color:white; }
+
+    body {
+      margin: 0;
+      font-family: "Segoe UI", Roboto, system-ui, -apple-system;
+      background: linear-gradient(135deg, var(--bg-grad-a), var(--bg-grad-b));
+      color: #222;
+      min-height: 100vh;
+      transition: background .25s, color .25s;
+    }
+
+    .sidebar {
+      --w: var(--sidebar-width);
+      position: fixed;
+      left: 0;
+      top: 60px;
+      width: var(--sidebar-width);
+      height: calc(100vh - 60px);
+      transform: translateX(-100%);
+      transition: transform .28s cubic-bezier(.22,.9,.4,1);
+      z-index: 1100;
+      overflow-y: auto;
+      background: linear-gradient(180deg,#2c3e50,#34495e);
+      color: #fff;
+      box-shadow: 4px 0 20px rgba(0,0,0,0.12);
+      padding: 18px;
+    }
+
+    body.sidebar-open .sidebar {
+      transform: translateX(0);
+    }
+
+    #overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.45);
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity .28s;
+      z-index: 1050;
+    }
+
+    body.sidebar-open #overlay {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .sidebar h5 { color: #f39c12; margin: 6px 0 12px; font-size: 1rem; }
+    .sidebar a {
+      display: block;
+      color: #d1d7dc;
+      text-decoration: none;
+      padding: 8px 10px;
+      border-radius: 8px;
+      margin-bottom: 8px;
+      transition: background .18s, transform .12s;
+    }
+    .sidebar a:hover { background: rgba(255,255,255,0.06); color: #fff; transform: translateX(4px); }
+
+    .nav-group .nav-link {
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      cursor:pointer;
+      color: #e6eef6;
+      padding: 8px 10px;
+      border-radius: 8px;
+    }
+    .nav-group .sub-links {
+      margin-top: 6px;
+      margin-left: 8px;
+      display: none;
+      padding-left: 6px;
+    }
+    .nav-group .sub-links.open { display:block; }
+    .nav-group .sub-links a { padding: 6px 8px; font-size: 0.95rem; color: #cbd6df; }
+
+    .nav-group .chev { transition: transform .18s; }
+    .nav-group.open .chev { transform: rotate(-180deg); }
+
+    .container {
+      display: block;
+      min-height: calc(100vh - 60px);
+    }
+
+    .main-content {
+      transition: margin-left .28s cubic-bezier(.22,.9,.4,1);
+      padding: 32px;
+      box-sizing: border-box;
+    }
+
+    @media (min-width: 900px) {
+      body.sidebar-open .main-content {
+        margin-left: var(--sidebar-width);
+      }
+      #overlay { display: none; }
+    }
+
+    @media (max-width: 899px) {
+      body.sidebar-open .main-content { margin-left: 0; }
+    }
+
+    .tool-card {
+      background: white;
+      padding: 22px;
+      border-radius: 12px;
+      box-shadow: 0 6px 18px rgba(20,30,40,0.04);
+      margin-bottom: 20px;
+    }
+
+    body.dark-mode {
+      background: linear-gradient(135deg,#1e1e1e,#2c2c2c);
+      color: #eee;
+    }
+    body.dark-mode .top-bar { background:#222; border-bottom-color:#333; }
+    body.dark-mode .top-btn { border-color: #f39c12; color:#f39c12; }
+    body.dark-mode .sidebar { background: linear-gradient(180deg,#0f1720,#12202a); }
+    body.dark-mode .tool-card { background:#1d1f22; color:#ddd; box-shadow: 0 6px 18px rgba(0,0,0,0.6); }
+    body.dark-mode .email-update-section { background: #2d1b0e !important; border-color: #8b4513 !important; }
+    body.dark-mode .email-update-section h3 { color: #ffa500 !important; }
+    body.dark-mode .email-update-section p { color: #ffa500 !important; }
+</style>
+</head>
+
+<body>
+  <div class="top-bar">
+    <div class="left-controls">
+      <button id="menuToggle" class="menu-btn" aria-label="Toggle navigation">☰</button>
+    </div>
+
+    <div class="right-controls">
+        {% set purchased_keys = user.purchased_features | map(attribute='key') | list %}
+        {% if "dark_mode" in purchased_keys %}
+            <button id="darkModeToggle" class="top-btn">Dark Mode</button>
+        {% endif %}
+        <form action="{{ url_for('logout') }}" method="POST" style="display:inline;">
+            <button class="top-btn">Logout</button>
+        </form>
+    </div>
+  </div>
+
+  <div id="overlay" tabindex="-1"></div>
+
+  <nav class="sidebar" aria-hidden="true">
+      <h5>Look stuff over here</h5>
+      <a href="{{ url_for('task_manager') }}">Task Manager</a>
+
+        <!-- Tools grouped -->
+      <div class="nav-group" id="toolsGroup">
+          <div class="nav-link" id="toolsToggle">
+             <span>Tools</span>
+             <span class="chev">▾</span>
+          </div>
+
+          <div class="sub-links" id="toolsList" aria-hidden="true">
+            <a href="{{ url_for('unit_converter') }}">Unit Converter</a>
+            <a href="{{ url_for('json_formatter.json_formatter') }}">JSON Formatter</a>
+            <a href="{{ url_for('json_formatter.regex') }}">Regex Tester</a>
+            <a href="{{ url_for('json_formatter.run_code') }}">Code Playground</a>
+          </div>
+      </div>
+      {% set purchased_keys = user.purchased_features | map(attribute='key') | list %}
+      {% if "blog" in purchased_keys %}
+          <a href="{{ url_for('blog') }}">Blog</a>
+      {% endif %}
+      <a href="{{ url_for('trivia') }}">Trivia</a>
+      <a href="{{ url_for('trivia_leaderboard') }}">Leaderboard</a>
+      <a href="{{ url_for('cat') }}">Cat Facts</a>
+      <a href="{{ url_for('currency_rate') }}">Currency Exchange</a>
+      <a href="{{ url_for('shop')}}">Shop</a>
+    </nav>
+
+
+    <!-- Main content -->
+    <div class="container">
+        <main class="main-content">
+            {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                    {% for msg in messages %}
+                        <p class="alert alert-info">{{ msg }}</p>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            <h2 class="fw-bold mb-4">Welcome, {{ username }}!</h2>
+            <p>Your current points: {{user.points}}</p>
+            <p>(Guys I'm :sobbing: so hard I fr can't make a better html structure and css that makes this page look better sorry for this really mid hamburger like stacking up styled dashboard)</p>
+            <p class="mb-4">Welcome to your dashboard, use my website to get smarter dumbdumb</p>
+
+            <!-- Email Update Section for users without email -->
+            {% if not user.email %}
+            <section class="tool-card email-update-section" style="background: #fff3cd; border: 1px solid #ffeaa7;">
+                <h3 style="color: #856404;">📧 Add Email Address</h3>
+                <p style="color: #856404;">You haven't added an email address to your account. This is required to purchase the Task Reminder feature.</p>
+                <form action="{{ url_for('update_email') }}" method="POST" style="margin-top: 15px;">
+                    <input type="email" name="email" placeholder="Enter your email address" required style="padding: 8px; margin-right: 10px; border: 1px solid #ccc; border-radius: 4px; width: 250px;">
+                    <button type="submit" style="padding: 8px 16px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer;">Add Email</button>
+                </form>
+            </section>
+            {% endif %}
+
+            <h2>Recent News in {{ country }}</h2>
+            {% if articles %}
+                <ul>
+                    {% for article in articles %}
+                        <li>
+                            <h3><a href="{{ article.url }}" target="_blank">{{ article.title }}</a></h3>
+                            {% if article.image %}
+                                <img src="{{ article.image }}" alt="News Image for {{ article.title }}" style="width:300px; height:auto;">
+                            {% else %}
+                                <p>No image available for this article.</p>
+                                <p>Image URL: {{ article.image }}</p>
+                            {% endif %}
+                            <p style="color:black;">{{ article.description }}</p>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p>No local news available.</p>
+            {% endif %}
+
+            <!--Task Manager -->
+            <section class="tool-card text-center">
+                <h3 class="fw-bold">Task Manager</h3>
+                <p>A place where you can conveniently manage your tasks, main source of income, 2pt/hr of task</p>
+                <a href="{{ url_for('task_manager') }}" class="btn btn-primary">Go to Task Manager</a>
+            </section>
+
+            <!--Tools section-->
+            <section class="tool-card text-center">
+                <h3 class="fw-bold">Tools</h3>
+                <p>List of tools you can use, some features requires additional fees</p>
+                <a href="{{ url_for('unit_converter') }}" class="btn btn-primary locked">Go to Unit Converter</a>
+                <a href="{{ url_for('json_formatter.json_formatter') }}" class="btn btn-primary locked">Go to JSON Formatter</a>
+                <a href="{{ url_for('json_formatter.regex') }}" class="btn btn-primary locked">Go to Regex Tester</a>
+                <a href="{{ url_for('json_formatter.run_code') }}" class="btn btn-primary locked">Go to Code Playground</a>
+            </section>
+
+            {% set purchased_keys = user.purchased_features | map(attribute='key') | list %}
+            {% if "blog" in purchased_keys %}
+            <!--Blog-->
+            <section class="tool-card text-center">
+                <h3 class="fw-bold">Blog</h3>
+                <p>Post stuff here, I will add comment and other options later.</p>
+                <a href="{{ url_for('blog') }}" class="btn btn-primary locked">Go to Blog</a>
+            </section>
+            {% endif %}
+
+            <section class="tool-card text-center">
+                <h3 class="fw-bold">Trivia</h3>
+                <p>Test your overall knowledge! Gets 1 point if you get it right! (istg if you google stuff)</p>
+                <a href="{{ url_for('trivia') }}" class="btn btn-primary locked">Prove you're smart!</a>
+                <a href="{{ url_for('trivia_leaderboard') }}" class="btn btn-primary locked">Trivia Leaderboard</a>
+                <a href="{{ url_for('trivia_history') }}" class="btn btn-primary locked">Trivia History</a>
+            </section>
+
+            <!--Cat Facts-->
+            <section class="tool-card text-center">
+                <h3 class="fw-bold">Cat Facts</h3>
+                <p>You know you can't miss out on that!</p>
+                <a href="{{ url_for('cat') }}" class="btn btn-primary locked">Get them facts!</a>
+            </section>
+
+            <!--Currency exchange-->
+            <section class="tool-card text-center">
+                <h3 class="fw-bold">Currency Exchange</h3>
+                <p>Just cuz I have the api token</p>
+                <a href="{{ url_for('currency_rate') }}" class="btn btn-primary locked">Get them</a>
+            </section>
+
+            <!--Shop-->
+            <section class="tool-card text-center">
+                <h3 class="fw-bold">Shop</h3>
+                <p>Get ur stuff here, you gotta pay for the stuff though (Mostly only stuff for task manager)</p>
+                <a href="{{ url_for('shop') }}" class="btn btn-primary">Go to Shop</a>
+            </section>
+            <p>All right reserved @Huayushan <a href="https://github.com/Cailihuashan/Huashan.website">Github</a></p>
+        </main>
+    </div>
+    <script defer src="/_vercel/insights/script.js"></script>
+
+<script>
+    const body = document.body;
+    const menuBtn = document.getElementById("menuToggle");
+    const overlay = document.querySelector("#overlay");
+    const toolsBtn = document.querySelector("#toolsToggle");
+    const toolsList = document.querySelector("#toolsList");
+    const toolsGroup = document.querySelector("#toolsGroup");
+
+    menuBtn.addEventListener("click", function () {
+      body.classList.toggle("sidebar-open");
+
+      const isOpen = body.classList.contains("sidebar-open");
+      document.querySelector(".sidebar").setAttribute("aria-hidden", String(!isOpen));
+      menuBtn.setAttribute("aria-expanded", String(isOpen));
+    });
+
+    overlay.addEventListener("click", function () {
+      body.classList.remove("sidebar-open");
+      document.querySelector(".sidebar").setAttribute("aria-hidden", "true");
+      menuBtn.setAttribute("aria-expanded", "false");
+    });
+
+    toolsBtn.addEventListener("click", function (evt) {
+      evt.preventDefault();
+
+      const openNow = !toolsList.classList.contains("open");
+      toolsList.classList.toggle("open");
+      toolsGroup.classList.toggle("open");
+      toolsList.setAttribute("aria-hidden", String(!openNow));
+    });
+
+    const darkModeBtn = document.querySelector("#darkModeToggle");
+    const DARK_MODE_KEY = "dashboard-dark";
+
+    if (localStorage.getItem(DARK_MODE_KEY) === "1") {
+      body.classList.add("dark-mode");
+      darkModeBtn.textContent = "Light Mode";
+    }
+
+    darkModeBtn.addEventListener("click", function () {
+      const isDark = body.classList.toggle("dark-mode");
+      darkModeBtn.textContent = isDark ? "Light Mode" : "Dark Mode";
+      localStorage.setItem(DARK_MODE_KEY, isDark ? "1" : "0");
+    });
+</script>
+</body>
+</html>

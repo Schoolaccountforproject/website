@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Task Manager</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='task_manager.css') }}">
+</head>
+<body>
+    {% set purchased_keys = user.purchased_features | map(attribute='key') | list %}
+    <header>
+        <div class="header-left">
+            <div style="font-weight:700; margin-right: 8px;">Task Manager</div>
+
+            <form class="search-inline" action="/task-manager" method="POST">
+                <input type="text" name="task_name" id="task_name" placeholder="Search tasks by name..." />
+                <button type="submit" style="padding:8px 12px; border-radius:8px; background:var(--accent); color:white; border:none;">Search</button>
+            </form>
+        </div>
+
+        <div class="controls">
+            <a href="/archived-tasks">Archived</a>
+            <a href="/">Home</a>
+        </div>
+    </header>
+
+    <main>
+        {% if searched_tasks is defined %}
+            <section>
+                <h3>Search Results:</h3>
+                {% if searched_tasks %}
+                    <ul class="search-list">
+                        {% for task in searched_tasks %}
+                            <li>
+                                <strong>{{ task.task }}</strong> - Created on {{ task.date_created.strftime('%Y-%m-%d %H:%M') }}
+                                {% if task.due_date %}
+                                    (Due: {{ task.due_date.strftime('%Y-%m-%d %H:%M') }})
+                                {% else %}
+                                    (No due date)
+                                {% endif %}
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p>No tasks found matching your search.</p>
+                {% endif %}
+            </section>
+        {% endif %}
+
+        {% if tasks|length < 1 %}
+            <h4 style="text-align:center; color:var(--muted); margin-top:22px;">There are no tasks yet — create one with the + button</h4>
+        {% endif %}
+
+        <div class="task-grid" aria-live="polite">
+            {% for task in tasks %}
+                <div class="task-card" id="task-{{ task.id }}">
+                    <div>
+                        <h3>{{ task.task }}</h3>
+                        <div class="meta">
+                            Created: {{ task.date_created.strftime('%Y-%m-%d %H:%M') }}
+                            {% if task.due_date %} · Due: {{ task.due_date.strftime('%Y-%m-%d %H:%M') }}{% else %} · No due date{% endif %}
+                        </div>
+                    </div>
+
+                    {% if task.tags %}
+                        <div class="tags">
+                            {% for tag in task.tags %}
+                                <button class="tag small tag-filter-btn" type="button" data-tag-id="{{ tag.id }}">{{ tag.name }}</button>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+
+                    <div class="card-bottom">
+                        {% if tags %}
+                        <form class="small-form" action="/add-tag-to-task/{{ task.id }}" method="POST" style="display:flex; gap:6px; align-items:center;">
+                            <select name="tag_id" aria-label="Add tag to task">
+                                <option value="" disabled selected>Add tag</option>
+                                {% for tag in tags %}
+                                    {% if tag not in task.tags %}
+                                        <option value="{{ tag.id }}">{{ tag.name }}</option>
+                                    {% endif %}
+                                {% endfor %}
+                            </select>
+                            <button type="submit" style="padding:6px 8px; border-radius:6px; border:1px solid #ddd; background:#fff;">Add</button>
+                        </form>
+                        {% endif %}
+
+                        <div class="task-actions" aria-hidden="false">
+                            <a title="Delete" href="/delete/{{ task.id }}">🗑</a>
+
+                            {% if "update_task" in purchased_keys %}
+                                <a title="Update" href="/update/{{ task.id }}">✏️</a>
+                            {% endif %}
+
+                            {% if not task.completed %}
+                                <a title="Complete" class="complete" href="/complete/{{ task.id }}">✅</a>
+                            {% else %}
+                                <span title="Completed" style="font-weight:600; color:#2d7a2d;">✔ Completed</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+
+        <section class="task-forms" style="margin-top: 18px;">
+            <div style="flex:1; min-width:260px;">
+                <div style="flex:1; min-width:260px;">
+                    <form action="/task-manager" method="POST" style="background:#fff; padding:12px; border-radius:10px; box-shadow:0 6px 12px rgba(0,0,0,0.04);">
+                        <input type="text" name="task" id="task" placeholder="Enter a task" required style="width:100%; padding:8px 10px; margin-bottom:8px; border-radius:6px; border:1px solid #e6e6e6;">
+                        <div style="display:flex; gap:8px; align-items:center;">
+                            <label for="due-date" class="muted">Due date:</label>
+                            <input type="datetime-local" id="due-date" name="due_date">
+                            <input type="submit" value="Add Task" style="margin-left:auto; padding:8px 12px; border-radius:8px; background:var(--accent); color:white; border:none;">
+                        </div>
+                    </form>
+                </div>
+
+                <br>
+
+                {% if "add_tags" in purchased_keys %}
+                <div style="min-width:240px;">
+                    <form action="/create-tag" method="POST" style="background:#fff; padding:12px; border-radius:10px; box-shadow:0 6px 12px rgba(0,0,0,0.04);">
+                        <input type="text" name="tag_name" placeholder="Enter a tag name" required style="width:100%; padding:8px 10px; margin-bottom:6px; border-radius:6px; border:1px solid #e6e6e6;">
+                        <div style="display:flex; align-items:center; gap:8px;">
+                            <input type="submit" value="Create Tag" style="padding:8px 10px; border-radius:8px; background:#4a6cf7; color:white; border:none;">
+                            <small class="muted">Costs 1 point</small>
+                        </div>
+                    </form>
+
+                    <!-- Delete tag form -->
+                    <form action="/delete-tag/" method="POST" style="background:#fff; padding:12px; margin-top:10px; border-radius:10px; box-shadow:0 6px 12px rgba(0,0,0,0.04);">
+                        <label for="delete_tag" class="muted">Delete a tag:</label>
+                        <select name="tag_id" id="delete_tag" required style="width:100%; padding:8px 10px; margin:8px 0; border-radius:6px; border:1px solid #e6e6e6;">
+                            {% if tags %}
+                                {% for tag in tags %}
+                                    <option value="{{ tag.id }}">{{ tag.name }}</option>
+                                {% endfor %}
+                            {% else %}
+                                <option disabled selected>None</option>
+                            {% endif %}
+                        </select>
+                        <button type="submit" style="padding:8px 10px; border-radius:8px; background:#ef5350; color:white; border:none;">Delete</button>
+                    </form>
+
+                    <!-- Search by tag -->
+                    <form action="/task-manager" method="POST" style="background:#fff; padding:12px; margin-top:10px; border-radius:10px; box-shadow:0 6px 12px rgba(0,0,0,0.04);">
+                        <label for="search_tags" class="muted">Search tasks by tags:</label>
+                        <select name="search_tags" id="search_tags" required style="width:100%; padding:8px 10px; margin:8px 0; border-radius:6px; border:1px solid #e6e6e6;">
+                            {% if tags %}
+                                {% for tag in tags %}
+                                    <option value="{{ tag.id }}">{{ tag.name }}</option>
+                                {% endfor %}
+                            {% else %}
+                                <option disabled selected>None</option>
+                            {% endif %}
+                        </select>
+                        <button type="submit" style="padding:8px 10px; border-radius:8px; background:#6f9cff; color:white; border:none;">Search</button>
+                    </form>
+                </div>
+                {% endif %}
+            </div>
+        </section>
+
+        <!-- Filtered by tag results -->
+        {% if filtered_tasks is defined %}
+            <section style="margin-top:18px;">
+                <h3>Filtered Results:</h3>
+                {% if filtered_tasks %}
+                    <div class="task-grid">
+                        {% for task in filtered_tasks %}
+                            <div class="task-card">
+                                <h4>{{ task.task }}</h4>
+                                <p class="meta"><strong>Date Created:</strong> {{ task.date_created.strftime('%Y-%m-%d %H:%M') }}</p>
+                                <p class="meta"><strong>Due Date:</strong>
+                                {% if task.due_date %}
+                                    {{ task.due_date.strftime('%Y-%m-%d %H:%M') }}
+                                {% else %}
+                                    No due date
+                                {% endif %}
+                                </p>
+                                {% if task.tags %}
+                                    <p><strong>Tags:</strong>
+                                        {% for tag in task.tags %}
+                                            <span class="tag">{{ tag.name }}</span>{% if not loop.last %}, {% endif %}
+                                        {% endfor %}
+                                    </p>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p>No tasks found with the selected tags.</p>
+                {% endif %}
+            </section>
+        {% endif %}
+
+        <!-- flashed messages -->
+        <section style="margin-top:12px;">
+            {% with messages = get_flashed_messages(category_filter="feature-add_tag") %}
+                {% if messages %}
+                    {% for msg in messages %}
+                        <p style="color: red;">{{ msg }}</p>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            {% with messages = get_flashed_messages(category_filter="tag_added") %}
+                {% if messages %}
+                    {% for msg in messages %}
+                        <p style="color: red;">{{ msg }}</p>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+        </section>
+
+    </main>
+
+    <!-- Floating add button -->
+    <button class="fab" id="open-add">+</button>
+
+    <!-- Add Task Modal -->
+    <div class="modal" id="add-modal" aria-hidden="true">
+        <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="add-modal-title">
+            <h3 id="add-modal-title">Add Task</h3>
+            <form action="/task-manager" method="POST">
+                <input type="text" name="task" placeholder="Enter a task" required />
+                <label class="muted">Due date</label>
+                <input type="datetime-local" name="due_date" />
+                <div style="display:flex; gap:8px; justify-content:flex-end; margin-top:8px;">
+                    <button type="button" id="cancel-add" style="padding:8px 12px; border-radius:8px; border:1px solid #ddd; background:#fff;">Cancel</button>
+                    <button type="submit" style="padding:8px 12px; border-radius:8px; background:var(--accent); color:white; border:none;">Add Task</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const openBtn = document.getElementById('open-add');
+        const modal = document.getElementById('add-modal');
+        const cancelBtn = document.getElementById('cancel-add');
+
+        openBtn.addEventListener('click', () => {
+            modal.classList.add('open');
+            modal.setAttribute('aria-hidden', 'false');
+        });
+        cancelBtn.addEventListener('click', () => {
+            modal.classList.remove('open');
+            modal.setAttribute('aria-hidden', 'true');
+        });
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                modal.classList.remove('open');
+                modal.setAttribute('aria-hidden', 'true');
+            }
+        });
+
+        document.querySelectorAll('.tag-filter-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const tagId = btn.dataset.tagId;
+                const f = document.createElement('form');
+                f.method = 'POST';
+                f.action = '/task-manager';
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = 'search_tags';
+                input.value = tagId;
+                f.appendChild(input);
+                document.body.appendChild(f);
+                f.submit();
+            });
+        });
+    </script>
+</body>
+</html>

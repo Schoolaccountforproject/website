@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="{{ url_for('static', filename='shop.css') }}">
+        <title>Shop</title>
+    </head>
+    <body>
+        <h1>Shop</h1>
+        <p style="text-align:center">Welcome, {{ username }}! You have {{ user.points }} points.</p>
+        <hr>
+        <h2>Available Features</h2>
+        {% with messages = get_flashed_messages(category_filter="feature-add_tag") %}
+            {% if messages %}
+                {% for msg in messages %}
+                    <p style="color: red;">{{ msg }}</p>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        <br>
+        <ul>
+            {% for feature in features %}
+                <li>
+                    <h3>{{ feature.name }}</h3>
+                    <p>{{ feature.description }}</p>
+                    <p>Cost: {{ feature.cost }} points</p>
+
+                    {% with messages = get_flashed_messages(category_filter="feature-" ~ feature.id) %}
+                    {% if messages %}
+                        {% for msg in messages %}
+                            <p style="color: red;">{{ msg }}</p>
+                        {% endfor %}
+                    {% endif %}
+                    {% endwith %}
+
+                    {% if feature in user.purchased_features %}
+                        <button disabled>You have this feature now</button>
+                    {% else %}
+                        <form action="/purchase-feature/{{ feature.id }}" method="POST">
+                            <button type="submit">Purchase</button>
+                        </form>
+                        <br>
+                    {% endif %}
+                </li>
+            {% endfor %}
+        </ul>
+        <br>
+        <a href="/task-manager">To Task Manager</a>
+        <br>
+        <a href="/">Back Home</a>
+    </body>
+</html>
+

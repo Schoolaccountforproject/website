@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>JSON Formatter and Validator + Converter</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='json.css') }}">
+</head>
+<body>
+<h2>JSON Formatter and Validator + Converter</h2>
+<p>Your Points: {{ points }}</p>
+
+<form id="jsonForm" enctype="multipart/form-data">
+    <div style="margin-bottom: 20px;">
+        <h3>Input Method:</h3>
+        <input type="radio" id="text_input" name="input_method" value="text" checked>
+        <label for="text_input">Text Input</label>
+        <input type="radio" id="file_input" name="input_method" value="file">
+        <label for="file_input">File Upload</label>
+    </div>
+
+    <div id="text_input_section">
+        <textarea name="raw_json" id="raw_json" rows="12" cols="80" placeholder="Paste your JSON, YAML, TOML, INI, or CSV data here"></textarea><br><br>
+    </div>
+
+    <div id="file_input_section" style="display: none;">
+        <input type="file" name="file" id="file" accept=".json,.yaml,.yml,.csv,.toml,.ini,.xml,.txt">
+        <div id="file_info" style="margin-top: 10px; padding: 10px; background-color: #f8f9fa; border-radius: 6px; display: none;">
+            <p style="margin: 0; font-size: 14px;"><strong>Selected file:</strong> <span id="file_name"></span></p>
+            <p style="margin: 5px 0 0 0; font-size: 12px; color: #666;">Size: <span id="file_size"></span></p>
+            <p style="margin: 5px 0 0 0; font-size: 12px; color: #666;">Detected format: <span id="file_format"></span></p>
+        </div>
+        <p style="font-size: 12px; color: #666;">Supported formats: JSON, YAML, CSV, TOML, INI, XML</p>
+        <p style="font-size: 12px; color: #666;">Max file size: 5MB</p>
+        <br>
+    </div>
+
+    <button type="submit" name="action" value="format">Format</button>
+    <button type="submit" name="action" value="minify">Minify</button>
+    <button type="submit" name="action" value="download">Download (2 pts)</button>
+
+    <br><br>
+
+    <label for="convert_from">Convert From:</label>
+    <select name="convert_from" id="convert_from">
+        <option value="json">JSON</option>
+        <option value="yaml">YAML</option>
+        <option value="xml">XML</option>
+        <option value="csv">CSV</option>
+        <option value="toml">TOML</option>
+        <option value="ini">INI</option>
+    </select>
+
+    &nbsp;&nbsp;&nbsp;
+
+    <label for="convert_to">Convert To:</label>
+    <select name="convert_to" id="convert_to">
+        <option value="json">JSON</option>
+        <option value="yaml">YAML</option>
+        <option value="xml">XML</option>
+        <option value="csv">CSV</option>
+        <option value="toml">TOML</option>
+        <option value="ini">INI</option>
+    </select>
+
+    <button type="submit" name="action" value="convert">Convert</button>
+    <button type="submit" name="action" value="download_converted">Download Converted (3 pts)</button>
+
+    <br><br>
+    <a href="/">Back to home</a>
+</form>
+
+<pre id="output" style="white-space: pre-wrap; border: 1px solid #ccc; padding: 10px; max-width: 90%; max-height: 400px; overflow-y: auto;"></pre>
+<button id="copyBtn" style="display:none;">Copy to Clipboard</button>
+
+
+<script>
+// Handle input method switching
+document.getElementById('text_input').addEventListener('change', function() {
+    document.getElementById('text_input_section').style.display = 'block';
+    document.getElementById('file_input_section').style.display = 'none';
+});
+
+document.getElementById('file_input').addEventListener('change', function() {
+    document.getElementById('text_input_section').style.display = 'none';
+    document.getElementById('file_input_section').style.display = 'block';
+});
+
+// Handle file selection
+document.getElementById('file').addEventListener('change', function() {
+    const file = this.files[0];
+    const fileInfo = document.getElementById('file_info');
+    const fileName = document.getElementById('file_name');
+    const fileSize = document.getElementById('file_size');
+    const fileFormat = document.getElementById('file_format');
+    
+    if (file) {
+        // Display file info
+        fileName.textContent = file.name;
+        fileSize.textContent = formatFileSize(file.size);
+        
+        // Detect format from extension
+        const filename = file.name.toLowerCase();
+        let detectedFormat = 'Unknown';
+        if (filename.endsWith('.json')) detectedFormat = 'JSON';
+        else if (filename.endsWith('.yaml') || filename.endsWith('.yml')) detectedFormat = 'YAML';
+        else if (filename.endsWith('.csv')) detectedFormat = 'CSV';
+        else if (filename.endsWith('.toml')) detectedFormat = 'TOML';
+        else if (filename.endsWith('.ini')) detectedFormat = 'INI';
+        else if (filename.endsWith('.xml')) detectedFormat = 'XML';
+        
+        fileFormat.textContent = detectedFormat;
+        fileInfo.style.display = 'block';
+        
+        // Auto-select the detected format in the dropdown
+        const convertFromSelect = document.getElementById('convert_from');
+        if (convertFromSelect) {
+            const formatMap = {
+                'JSON': 'json',
+                'YAML': 'yaml',
+                'CSV': 'csv',
+                'TOML': 'toml',
+                'INI': 'ini',
+                'XML': 'xml'
+            };
+            const selectValue = formatMap[detectedFormat];
+            if (selectValue) {
+                convertFromSelect.value = selectValue;
+            }
+        }
+    } else {
+        fileInfo.style.display = 'none';
+    }
+});
+
+function formatFileSize(bytes) {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+}
+
+document.getElementById('jsonForm').onsubmit = async function(e) {
+    e.preventDefault();
+
+    // get form and clicked button action
+    const form = this;
+    const action = e.submitter ? e.submitter.value : (form.querySelector('button[type="submit"]').value || 'format');
+
+    // build FormData and explicitly set the action and conversion selects
+    const formData = new FormData(form);
+    formData.set('action', action);
+
+    const cf = document.getElementById('convert_from');
+    const ct = document.getElementById('convert_to');
+    if (cf) formData.set('convert_from', cf.value);
+    if (ct) formData.set('convert_to', ct.value);
+
+    // Add input method to form data
+    const inputMethod = document.querySelector('input[name="input_method"]:checked').value;
+    formData.set('input_method', inputMethod);
+
+    try {
+        const res = await fetch('/json_formatter', {
+            method: 'POST',
+            body: formData
+        });
+
+        // handle download actions (server returns file)
+        if (action === 'download' || action === 'download_converted') {
+            if (res.ok) {
+                const blob = await res.blob();
+                // try to get filename from header, fall back to default
+                const cd = res.headers.get('Content-Disposition') || '';
+                let filename = 'formatted.json';
+                const match = cd.match(/filename\*=UTF-8''(.+)$|filename="?([^";]+)"?/);
+                if (match) filename = decodeURIComponent(match[1] || match[2]);
+
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = filename;
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+                URL.revokeObjectURL(url);
+            } else {
+                // error response (likely JSON)
+                const err = await res.json().catch(()=>({message:'Download failed'}));
+                alert(err.message || 'Download failed');
+            }
+            return;
+        }
+
+        // non-download: expect JSON response with {status, formatted, message}
+        const contentType = res.headers.get('content-type') || '';
+        if (res.ok && contentType.includes('application/json')) {
+            const result = await res.json();
+            if (result.status === 'success') {
+                document.getElementById('output').textContent = result.formatted;
+                document.getElementById('copyBtn').style.display = 'inline-block';
+            } else {
+                alert(result.message || 'Error');
+            }
+        } else if (res.ok) {
+            // fallback: show raw text (server might return plain text)
+            const text = await res.text();
+            document.getElementById('output').textContent = text;
+        } else {
+            const err = await res.json().catch(()=>({message:'Request failed'}));
+            alert(err.message || 'Request failed');
+        }
+    } catch (err) {
+        alert('Network or parsing error: ' + (err.message || err));
+        console.error(err);
+    }
+};
+document.getElementById('copyBtn').onclick = function() {
+    const text = document.getElementById('output').textContent;
+    navigator.clipboard.writeText(text).then(() => {
+        alert('Copied to clipboard!');
+    }).catch(err => {
+        alert('Failed to copy: ' + err);
+    });
+};
+</script>
+
+
+</body>
+</html>

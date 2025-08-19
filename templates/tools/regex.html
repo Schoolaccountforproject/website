@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Andy.Fun</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='regex.css') }}">
+</head>
+<body>
+    <h2>Regex Tester</h2>
+<div>
+    <label>Regex Pattern:</label>
+    <input type="text" id="regexPattern" placeholder="Enter regex here">
+</div>
+<div>
+    <label>Flags:</label>
+    <label><input type="checkbox" value="g" class="flag"> g</label>
+    <label><input type="checkbox" value="i" class="flag"> i</label>
+    <label><input type="checkbox" value="m" class="flag"> m</label>
+    <label><input type="checkbox" value="s" class="flag"> s</label>
+    <label><input type="checkbox" value="u" class="flag"> u</label>
+    <label><input type="checkbox" value="y" class="flag"> y</label>
+</div>
+<div>
+    <label>Test String:</label><br>
+    <textarea id="testString" rows="5" cols="50"></textarea>
+</div>
+<div>
+    <label>Replace With (optional):</label>
+    <input type="text" id="replaceString" placeholder="Leave empty for no replace">
+</div>
+<button id="runRegex">Run</button>
+<button id="copyResult">Copy Result</button>
+
+<h3>Result:</h3>
+<pre id="regexOutput"></pre>
+<h3>Matches:</h3>
+<div id="highlightedOutput" style="white-space: pre-wrap;"></div>
+<a href="/">Back to Home</a>
+
+<script>
+document.getElementById('runRegex').onclick = function() {
+    const pattern = document.getElementById('regexPattern').value;
+    const flags = Array.from(document.querySelectorAll('.flag:checked')).map(f => f.value).join('');
+    const testString = document.getElementById('testString').value;
+    const replaceValue = document.getElementById('replaceString').value;
+
+    let regex;
+    try {
+        regex = new RegExp(pattern, flags);
+    } catch (e) {
+        document.getElementById('regexOutput').textContent = `Invalid regex: ${e.message}`;
+        return;
+    }
+
+    let output;
+    if (replaceValue) {
+        output = testString.replace(regex, replaceValue);
+        document.getElementById('regexOutput').textContent = output;
+    } else {
+        const matches = [...testString.matchAll(regex)];
+        if (matches.length === 0) {
+            document.getElementById('regexOutput').textContent = "No matches found.";
+        } else {
+            output = matches.map((m, i) => `Match ${i + 1}: "${m[0]}" at index ${m.index}`).join('\n');
+            document.getElementById('regexOutput').textContent = output;
+        }
+
+        // Highlight matches
+        let highlighted = testString;
+        matches.reverse().forEach(m => {
+            highlighted = highlighted.slice(0, m.index) +
+                          `<mark>${m[0]}</mark>` +
+                          highlighted.slice(m.index + m[0].length);
+        });
+        document.getElementById('highlightedOutput').innerHTML = highlighted;
+    }
+};
+
+document.getElementById('copyResult').onclick = function() {
+    const text = document.getElementById('regexOutput').textContent;
+    navigator.clipboard.writeText(text).then(() => {
+        alert("Result copied to clipboard!");
+    });
+};
+</script>
+
+</body>
+</html>

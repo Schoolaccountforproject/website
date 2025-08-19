@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Trivia</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f2f2f2;
+            padding: 20px;
+        }
+        .trivia-container {
+            background: #fff;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.2);
+            max-width: 600px;
+            margin: auto;
+        }
+        h1 {
+            text-align: center;
+        }
+        .choice {
+            margin: 10px 0;
+        }
+        .feedback {
+            font-weight: bold;
+            color: green;
+        }
+        .wrong {
+            color: red;
+        }
+        #timer {
+            font-weight: bold;
+            color: #d9534f;
+            font-size: 18px;
+        }
+        button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+    <div class="trivia-container">
+        <h1>Trivia Time!</h1>
+        {% if feedback %}
+          <p class="feedback {% if 'Wrong' in feedback %}wrong{% endif %}">{{ feedback }}</p>
+          <a href="{{ url_for('trivia') }}">Next Question</a>
+        {% elif question_data %}
+          <form method="POST" id="trivia-form">
+            <p id="timer">20 seconds left</p>
+            <p><strong>{{ question_data.question|safe }}</strong></p>
+            {% for choice in question_data.choices %}
+              <div class="choice">
+                <input type="radio" name="answer" value="{{ choice }}" required>
+                <label>{{ choice }}</label>
+              </div>
+            {% endfor %}
+            <button type="submit">Submit Answer</button>
+          </form>
+        {% else %}
+          <p>Sorry, something went wrong. No trivia question could be loaded.</p>
+        {% endif %}
+    </div>
+    <a href="{{ url_for('home') }}">Back to Home</a>
+
+    <script>
+        let timeLeft = 20;
+        const timerElement = document.getElementById("timer");
+        const submitBtn = document.getElementById("submitBtn");
+        const form = document.getElementById("trivia-form");
+        const countdown = setInterval(() => {
+            if (timeLeft <= 0) {
+                clearInterval(countdown);
+                timerElement.textContent = "Time's up!";
+                submitBtn.disabled = true;
+
+                // Deselect any selected answer to force it to be blank
+                const selected = form.querySelector('input[name="answer"]:checked');
+                if (selected) {
+                    selected.checked = false;
+                }
+
+                form.submit();  // Auto-submit — server will treat blank as wrong
+            } else {
+                timerElement.textContent = timeLeft + " seconds left";
+                timeLeft--;
+            }
+        }, 1000);
+    </script>
+
+</body>
+</html>

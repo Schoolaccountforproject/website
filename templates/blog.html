@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta http-equiv="X-UA-Compatible" content="ie=edge">
+        <title>Andy.Fun</title>
+        {% block style%}
+        <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: linear-gradient(120deg, #e0eafc 0%, #cfdef3 100%);
+            color: #333;
+        }
+
+        h1, h2 {
+            font-weight: 600;
+            color: #2d6a4f;
+            margin-bottom: 10px;
+        }
+
+        a {
+            color: #40916c;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        form {
+            margin-top: 10px;
+        }
+
+        textarea {
+            width: 100%;
+            resize: vertical;
+            padding: 8px;
+            font-size: 1rem;
+            border-radius: 6px;
+            border: 1px solid #b7e4c7;
+            background: #f6fff8;
+            margin-bottom: 8px;
+            box-sizing: border-box;
+        }
+
+        button {
+            background: #52b788;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            padding: 7px 18px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        button:hover {
+            background: #40916c;
+        }
+
+        .message-card {
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(44, 62, 80, 0.07);
+            margin: 18px 0;
+            padding: 18px 20px 12px 20px;
+            border-left: 5px solid #b7e4c7;
+            position: relative;
+        }
+
+        .user-badge {
+            display: inline-block;
+            background: #b7e4c7;
+            color: #1b4332;
+            font-weight: 600;
+            border-radius: 12px;
+            padding: 3px 12px;
+            font-size: 0.98em;
+            margin-right: 8px;
+        }
+
+        .timestamp {
+            color: #888;
+            font-size: 0.92em;
+            margin-left: 4px;
+        }
+
+        .comment-section {
+            margin-left: 18px;
+            margin-top: 10px;
+            padding-left: 10px;
+            border-left: 2px solid #b7e4c7;
+        }
+
+        .comment {
+            background: #f1faee;
+            border-radius: 7px;
+            padding: 7px 12px;
+            margin-bottom: 7px;
+            font-size: 0.98em;
+        }
+
+        .comment .user-badge {
+            background: #a3c4bc;
+            color: #22223b;
+            font-size: 0.95em;
+            padding: 2px 8px;
+            margin-right: 6px;
+        }
+        </style>
+        {% endblock %}
+    </head>
+    <body>
+        <h1>Blog where you post stuff</h1>
+
+        <h2>Post a Message</h2>
+        <form method="POST">
+            <textarea name="content" rows="3" placeholder="Say stuff here" required></textarea><br>
+            <p>Costs 1 point</p>
+            <button type="submit">Post</button>
+        </form>
+        <br>
+        <a href="/">Back Home</a>
+
+        <h2>All Messages</h2>
+        {% for msg in messages %}
+            <div style="border:1px solid #ccc; margin:10px; padding:10px;">
+                <span class="user-badge">{{ msg.user.username }}</span>
+                <span class="timestamp">{{ msg.timestamp.strftime('%Y-%m-%d %H:%M') }}</span>
+                <p>{{ msg.content }}</p>
+                <div class="comment-section">
+                    <!-- Display comments for this post -->
+                    {% for comment in msg.comments %}
+                        <div class="comment">
+                            <span class="user-badge">{{ comment.author.username }}</span>
+                            <span class="timestamp">{{ comment.timestamp.strftime('%Y-%m-%d %H:%M') }}</span>
+                            {{ comment.content }}
+                        </div>
+                    {% endfor %}
+                    <!-- Add comment form for this post -->
+                    <form method="post">
+                        <input type="hidden" name="post_id" value="{{ msg.id }}">
+                        <textarea name="comment_content" rows="2" placeholder="Say something..." required></textarea>
+                        <button type="submit">Add Comment</button>
+                    </form>
+                </div>
+            </div>
+        {% else %}
+            <p>No messages yet.</p>
+        {% endfor %}
+    </body>

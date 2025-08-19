@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Currency Exchange</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <h1>Real-Time Currency Exchange Rates</h1>
+
+    <form method="POST">
+        <label for="base_currency">From:</label>
+        <input type="text" id="base_currency" name="base_currency" placeholder="e.g.USD" required>
+
+        <label for="target_currency">To:</label>
+        <input type="text" id="target_currency" name="target_currency" placeholder="e.g.EUR" required>
+
+        <label for="amount">Amount:</label>
+        <input type="number" id="amount" name="amount" placeholder="Enter amount" min="0.01" step="0.01" required>
+
+        <button type="submit">Get Exchange Rate</button>
+    </form>
+
+    <hr>
+
+    {% if exchange_data %}
+        <h2>Exchange Result</h2>
+        <p>{{ exchange_data.amount }} {{ exchange_data.base }} =
+           {{ exchange_data.calculated_amount }} {{ exchange_data.target }}</p>
+    {% elif error %}
+        <p style="color: red;">{{ error }}</p>
+    {% endif %}
+
+    <hr>
+
+    <h2>Popular Currency Exchange Options</h2>
+    <ul>
+        <li>
+            <a href="#" onclick="populateForm('USD', 'EUR')">USD to EUR</a>
+        </li>
+        <li>
+            <a href="#" onclick="populateForm('USD', 'GBP')">USD to GBP</a>
+        </li>
+        <li>
+            <a href="#" onclick="populateForm('EUR', 'GBP')">EUR to GBP</a>
+        </li>
+        <li>
+            <a href="#" onclick="populateForm('USD', 'JPY')">USD to JPY</a>
+        </li>
+        <li>
+            <a href="#" onclick="populateForm('GBP', 'INR')">GBP to INR</a>
+        </li>
+        <li>
+            <a href="#" onclick="populateForm('AUD', 'CAD')">AUD to CAD</a>
+        </li>
+        <li>
+            <a href="#" onclick="populateForm('USD', 'AUD')">USD to AUD</a>
+        </li>
+    </ul>
+
+    <script>
+        function populateForm(base, target) {
+            document.getElementById('base_currency').value = base; // Fill in base currency
+            document.getElementById('target_currency').value = target; // Fill in target currency
+        }
+    </script>
+
+    <hr>
+
+    <h2>List of Currencies</h2>
+    <table border="1" style="width: 100%; border-collapse: collapse; text-align: left;">
+        <thead>
+            <tr>
+                <th>Country</th>
+                <th>Currency</th>
+                <th>Currency Code</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Afghanistan</td>
+                <td>Afghan Afghani</td>
+                <td>AFN</td>
+            </tr>
+            <tr>
+                <td>Albania</td>
+                <td>Albanian Lek</td>
+                <td>ALL</td>
+            </tr>
+            <tr>
+                <td>Algeria</td>
+                <td>Algerian Dinar</td>
+                <td>DZD</td>
+            </tr>
+            <tr>
+                <td>Argentina</td>
+                <td>Argentine Peso</td>
+                <td>ARS</td>
+            </tr>
+            <tr>
+                <td>Australia</td>
+                <td>Australian Dollar</td>
+                <td>AUD</td>
+            </tr>
+            <tr>
+                <td>Austria</td>
+                <td>Euro</td>
+                <td>EUR</td>
+            </tr>
+            <tr>
+                <td>Bangladesh</td>
+                <td>Bangladeshi Taka</td>
+                <td>BDT</td>
+            </tr>
+            <tr>
+                <td>Brazil</td>
+                <td>Brazilian Real</td>
+                <td>BRL</td>
+            </tr>
+            <tr>
+                <td>Belgium</td>
+                <td>Euro</td>
+                <td>EUR</td>
+            </tr>
+            <tr>
+                <td>Canada</td>
+                <td>Canadian Dollar</td>
+                <td>CAD</td>
+            </tr>
+            <tr>
+                <td>China</td>
+                <td>Chinese Yuan</td>
+                <td>CNY</td>
+            </tr>
+            <tr>
+                <td>Colombia</td>
+                <td>Colombian Peso</td>
+                <td>COP</td>
+            </tr>
+            <tr>
+                <td>Croatia</td>
+                <td>Croatian Kuna</td>
+                <td>HRK</td>
+            </tr>
+            <tr>
+                <td>Denmark</td>
+                <td>Danish Krone</td>
+                <td>DKK</td>
+            </tr>
+            <tr>
+                <td>Egypt</td>
+                <td>Egyptian Pound</td>
+                <td>EGP</td>
+            </tr>
+            <tr>
+                <td>France</td>
+                <td>Euro</td>
+                <td>EUR</td>
+            </tr>
+            <tr>
+                <td>Germany</td>
+                <td>Euro</td>
+                <td>EUR</td>
+            </tr>
+            <tr>
+                <td>Greece</td>
+                <td>Euro</td>
+                <td>EUR</td>
+            </tr>
+            <tr>
+                <td>Hong Kong</td>
+                <td>Hong Kong Dollar</td>
+                <td>HKD</td>
+            </tr>
+            <tr>
+                <td>India</td>
+                <td>Indian Rupee</td>
+                <td>INR</td>
+            </tr>
+            <tr>
+                <td>Indonesia</td>
+                <td>Indonesian Rupiah</td>
+                <td>IDR</td>
+            </tr>
+            <tr>
+                <td>Ireland</td>
+                <td>Euro</td>
+                <td>EUR</td>
+            </tr>
+            <tr>
+                <td>Israel</td>
+                <td>Israeli New Shekel</td>
+                <td>ILS</td>
+            </tr>
+            <tr>
+                <td>Italy</td>
+                <td>Euro</td>
+                <td>EUR</td>
+            </tr>
+            <tr>
+                <td>Japan</td>
+                <td>Japanese Yen</td>
+                <td>JPY</td>
+            </tr>
+            <tr>
+                <td>Kenya</td>
+                <td>Kenyan Shilling</td>
+                <td>KES</td>
+            </tr>
+            <tr>
+                <td>Malaysia</td>
+                <td>Malaysian Ringgit</td>
+                <td>MYR</td>
+            </tr>
+            <tr>
+                <td>Mexico</td>
+                <td>Mexican Peso</td>
+                <td>MXN</td>
+            </tr>
+            <tr>
+                <td>Nepal</td>
+                <td>Nepalese Rupee</td>
+                <td>NPR</td>
+            </tr>
+            <tr>
+                <td>New Zealand</td>
+                <td>New Zealand Dollar</td>
+                <td>NZD</td>
+            </tr>
+            <tr>
+                <td>Pakistan</td>
+                <td>Pakistani Rupee</td>
+                <td>PKR</td>
+            </tr>
+            <tr>
+                <td>Philippines</td>
+                <td>Philippine Peso</td>
+                <td>PHP</td>
+            </tr>
+            <tr>
+                <td>Russia</td>
+                <td>Russian Ruble</td>
+                <td>RUB</td>
+            </tr>
+            <tr>
+                <td>Saudi Arabia</td>
+                <td>Saudi Riyal</td>
+                <td>SAR</td>
+            </tr>
+            <tr>
+                <td>Singapore</td>
+                <td>Singapore Dollar</td>
+                <td>SGD</td>
+            </tr>
+            <tr>
+                <td>South Africa</td>
+                <td>South African Rand</td>
+                <td>ZAR</td>
+            </tr>
+            <tr>
+                <td>Sweden</td>
+                <td>Swedish Krona</td>
+                <td>SEK</td>
+            </tr>
+            <tr>
+                <td>Switzerland</td>
+                <td>Swiss Franc</td>
+                <td>CHF</td>
+            </tr>
+            <tr>
+                <td>Thailand</td>
+                <td>Thai Baht</td>
+                <td>THB</td>
+            </tr>
+            <tr>
+                <td>Turkey</td>
+                <td>Turkish Lira</td>
+                <td>TRY</td>
+            </tr>
+            <tr>
+                <td>United Arab Emirates</td>
+                <td>UAE Dirham</td>
+                <td>AED</td>
+            </tr>
+            <tr>
+                <td>United Kingdom</td>
+                <td>British Pound</td>
+                <td>GBP</td>
+            </tr>
+            <tr>
+                <td>United States</td>
+                <td>US Dollar</td>
+                <td>USD</td>
+            </tr>
+            <tr>
+                <td>Vietnam</td>
+                <td>Vietnamese Dong</td>
+                <td>VND</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <a href="/">Back to Home</a>
+
+    <hr>
+</body>
+</html>

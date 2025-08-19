@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta http-equiv="X-UA-Compatible" content="ie=edge">
+        <title>Andy.Fun</title>
+        <style>
+            body {
+                background: #f4f7fa;
+                font-family: 'Segoe UI', Arial, sans-serif;
+                color: #222;
+                margin: 0;
+                padding: 0;
+            }
+            h2 {
+                text-align: center;
+                color: #2a4365;
+                margin-top: 30px;
+            }
+            .converter-grid {
+                display: grid;
+                grid-template-columns: repeat(4, 1fr);
+                gap: 24px;
+                padding: 40px;
+                max-width: 1400px;
+                margin: 0 auto;
+            }
+            .converter-card {
+                background: #fff;
+                border-radius: 12px;
+                box-shadow: 0 2px 8px rgba(44, 62, 80, 0.08);
+                padding: 24px 18px 18px 18px;
+                display: flex;
+                flex-direction: column;
+                align-items: stretch;
+                min-height: 320px;
+            }
+            .converter-card strong {
+                color: #2a4365;
+                font-size: 1.2em;
+            }
+            .unlocked {
+                color: #38a169;
+                font-weight: bold;
+            }
+            .locked {
+                color: #e53e3e;
+                font-weight: bold;
+            }
+            .flashes, .result, .error {
+                margin: 10px 0 0 0;
+                padding: 0;
+                list-style: none;
+            }
+            .flashes li, .result {
+                color: #3182ce;
+                background: #ebf8ff;
+                border-radius: 6px;
+                padding: 6px 10px;
+                margin-bottom: 4px;
+                font-size: 0.98em;
+            }
+            .error {
+                color: #e53e3e;
+                background: #fff5f5;
+                border-radius: 6px;
+                padding: 6px 10px;
+                font-size: 0.98em;
+            }
+            label {
+                font-weight: 500;
+                margin-top: 8px;
+            }
+            input[type="number"], input[type="text"] {
+                width: 100%;
+                padding: 6px 8px;
+                margin: 4px 0 10px 0;
+                border: 1px solid #cbd5e0;
+                border-radius: 4px;
+                font-size: 1em;
+            }
+            button {
+                background: #3182ce;
+                color: #fff;
+                border: none;
+                border-radius: 4px;
+                padding: 8px 16px;
+                cursor: pointer;
+                font-size: 1em;
+                transition: background 0.2s;
+                margin-top: 8px;
+            }
+            button:hover {
+                background: #2b6cb0;
+            }
+            a {
+                color: #3182ce;
+                text-decoration: none;
+                margin-top: 8px;
+                display: inline-block;
+            }
+            @media (max-width: 1100px) {
+                .converter-grid {
+                    grid-template-columns: repeat(2, 1fr);
+                }
+            }
+            @media (max-width: 700px) {
+                .converter-grid {
+                    grid-template-columns: 1fr;
+                    padding: 10px;
+                }
+            }
+        </style>
+    </head>
+    <body>
+    <h2>Unit Converter</h2>
+    <div class="converter-grid">
+        {% for ctype in converter_types %}
+        <div class="converter-card">
+            <strong>{{ ctype.capitalize() }}</strong>
+            {% if ctype in unlocked %}
+                <span class="unlocked">(Unlocked)</span>
+                <form method="POST">
+                    <input type="hidden" name="converter_type" value="{{ ctype }}">
+                    <input type="hidden" name="selected_type" value="{{ ctype }}">
+                    <label>Value:</label>
+                    <input type="number" name="value" step="any" required>
+                    <label>From Unit:</label>
+                    <input type="text" name="from_unit" required>
+                    <label>To Unit:</label>
+                    <input type="text" name="to_unit" required>
+                    <button type="submit">Convert</button>
+                </form>
+                {% if selected_type == ctype %}
+                    {% with messages = get_flashed_messages() %}
+                        {% if messages %}
+                            <ul class="flashes">
+                                {% for message in messages %}
+                                    <li>{{ message }}</li>
+                                {% endfor %}
+                            </ul>
+                        {% endif %}
+                    {% endwith %}
+                    {% if result is not none %}
+                        <div class="result"><strong>Result:</strong> {{ result }}</div>
+                    {% endif %}
+                    {% if error %}
+                        <div class="error">{{ error }}</div>
+                    {% endif %}
+                {% endif %}
+            {% else %}
+                <span class="locked">(Locked)</span>
+                <form method="POST">
+                    <input type="hidden" name="unlock_type" value="{{ ctype }}">
+                    <input type="hidden" name="selected_type" value="{{ ctype }}">
+                    <label>{{ questions[ctype]['question'] }}</label>
+                    <input type="text" name="answer" required>
+                    <button type="submit">Unlock</button>
+                </form>
+                {% if selected_type == ctype %}
+                    {% with messages = get_flashed_messages() %}
+                        {% if messages %}
+                            <ul class="flashes">
+                                {% for message in messages %}
+                                    <li>{{ message }}</li>
+                                {% endfor %}
+                            </ul>
+                        {% endif %}
+                    {% endwith %}
+                    {% if error %}
+                        <div class="error">{{ error }}</div>
+                    {% endif %}
+                {% endif %}
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+    <div style="text-align:center; margin: 30px 0;">
+        <a href="{{ url_for('main') }}">Back to Dashboard</a>
+    </div>
+</body>
+</html>
